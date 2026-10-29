@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Applications</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page:        #f3f1ec;
+    --surface:     #fcfcfb;
+    --surface-2:   #f0efec;
+    --border:      #e6e3dc;
+    --text:        #1d1d1b;
+    --text-2:      #52514e;
+    --text-3:      #8a8983;
+    --grid:        #ebe8e1;
+    --series:      #2a78d6;
+    --series-soft: #e3eefc;
+    --hover-band:  rgba(42, 120, 214, 0.07);
+    --heat-1: #cde2fb; --heat-2: #9ec5f4; --heat-3: #5598e7; --heat-4: #2a78d6; --heat-5: #1c5cab;
+    --heat-ink-dark: #0d366b;
+    --shadow: 0 1px 2px rgba(40, 35, 20, 0.04), 0 6px 24px rgba(40, 35, 20, 0.05);
+    /* One fixed color per position (validated categorical order); gray = Uncategorized */
+    --c1: #2a78d6; --c2: #eb6834; --c3: #1baf7a; --c4: #eda100;
+    --c5: #e87ba4; --c6: #008300; --c7: #6250d6; --c8: #e34948; --c-other: #a3a29c;
+    /* Table goal colors */
+    --lv-gd-bg: #1e7a2e; --lv-gd-fg: #ffffff;
+    --lv-g-bg:  #3fa34d; --lv-g-fg:  #ffffff;
+    --lv-gl-bg: #d6efd6; --lv-gl-fg: #1d5c25;
+    --lv-rl-bg: #fbe1de; --lv-rl-fg: #8f2b22;
+    --lv-r-bg:  #d9483d; --lv-r-fg:  #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #141413; --surface: #1c1c1b; --surface-2: #262624; --border: #2e2e2b;
+      --text: #f0efec; --text-2: #c3c2b7; --text-3: #8d8c84; --grid: #2a2a27;
+      --series: #3987e5; --series-soft: #1d2b3d; --hover-band: rgba(57, 135, 229, 0.10);
+      --heat-1: #184f95; --heat-2: #1c5cab; --heat-3: #2a78d6; --heat-4: #5598e7; --heat-5: #9ec5f4;
+      --heat-ink-dark: #0d366b;
+      --shadow: none;
+      --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500;
+      --c5: #d55181; --c6: #008300; --c7: #9085e9; --c8: #e66767; --c-other: #6d6c66;
+      --lv-gd-bg: #2a8a3a; --lv-gd-fg: #ffffff;
+      --lv-g-bg:  #3c9a48; --lv-g-fg:  #ffffff;
+      --lv-gl-bg: #1f3b24; --lv-gl-fg: #a9dcae;
+      --lv-rl-bg: #3e2321; --lv-rl-fg: #f2aba4;
+      --lv-r-bg:  #c2433a; --lv-r-fg:  #ffffff;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #141413; --surface: #1c1c1b; --surface-2: #262624; --border: #2e2e2b;
+    --text: #f0efec; --text-2: #c3c2b7; --text-3: #8d8c84; --grid: #2a2a27;
+    --series: #3987e5; --series-soft: #1d2b3d; --hover-band: rgba(57, 135, 229, 0.10);
+    --heat-1: #184f95; --heat-2: #1c5cab; --heat-3: #2a78d6; --heat-4: #5598e7; --heat-5: #9ec5f4;
+    --shadow: none;
+    --c1: #3987e5; --c2: #d95926; --c3: #199e70; --c4: #c98500;
+    --c5: #d55181; --c6: #008300; --c7: #9085e9; --c8: #e66767; --c-other: #6d6c66;
+    --lv-gd-bg: #2a8a3a; --lv-gd-fg: #ffffff;
+    --lv-g-bg:  #3c9a48; --lv-g-fg:  #ffffff;
+    --lv-gl-bg: #1f3b24; --lv-gl-fg: #a9dcae;
+    --lv-rl-bg: #3e2321; --lv-rl-fg: #f2aba4;
+    --lv-r-bg:  #c2433a; --lv-r-fg:  #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page); color: var(--text);
+    font: 14px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 64px; }
+  header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+  h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .sub { color: var(--text-3); margin-top: 2px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); }
+
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+  .kpi { padding: 16px 18px; }
+  .kpi .label { color: var(--text-2); font-size: 12.5px; }
+  .kpi .value { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .kpi .note { color: var(--text-3); font-size: 12px; }
+
+  .panel { padding: 20px 22px 18px; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .panel-head h2 { font-size: 15px; font-weight: 600; margin: 0; }
+  .panel-head .hint { color: var(--text-3); font-size: 12.5px; }
+
+  .seg { display: inline-flex; background: var(--surface-2); border-radius: 10px; padding: 3px; }
+  .seg button {
+    border: 0; background: transparent; color: var(--text-2); font: inherit; font-size: 13px;
+    padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .seg button:focus-visible, .cal-nav button:focus-visible, .day:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+
+  .chart { position: relative; }
+  .chart svg { display: block; overflow: visible; }
+  .grid { stroke: var(--grid); stroke-width: 1; }
+  .baseline { stroke: var(--text-3); stroke-width: 1; opacity: .5; }
+  .axis { fill: var(--text-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .val { fill: var(--text-2); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .bar { fill: var(--series); }
+  .hit { fill: transparent; cursor: pointer; }
+  .hit:hover, .hit.selected { fill: var(--hover-band); }
+
+  .tip {
+    position: absolute; pointer-events: none; z-index: 5; min-width: 140px; max-width: 280px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12); padding: 10px 12px; font-size: 12.5px;
+    opacity: 0; transition: opacity .12s;
+  }
+  .tip.show { opacity: 1; }
+  .tip .t-date { color: var(--text-2); }
+  .tip .t-count { font-size: 18px; font-weight: 600; margin: 2px 0 4px; }
+  .tip .t-list { color: var(--text-2); margin: 0; padding: 0; list-style: none; }
+  .tip .t-list li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tip .t-more { color: var(--text-3); }
+
+  /* Calendar */
+  .cal-nav { display: flex; align-items: center; gap: 8px; }
+  .cal-nav button {
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text-2); cursor: pointer; font-size: 15px; line-height: 1;
+  }
+  .cal-nav button:disabled { opacity: .35; cursor: default; }
+  .cal-nav .month { min-width: 130px; text-align: center; font-weight: 600; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+  .dow { color: var(--text-3); font-size: 12px; text-align: center; padding-bottom: 2px; }
+  .day {
+    position: relative; height: 68px; border-radius: 10px; border: 0; padding: 0;
+    background: var(--surface-2); color: var(--text); font: inherit; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .day .num { position: absolute; top: 6px; left: 8px; font-size: 11.5px; color: var(--text-3); }
+  .day .cnt { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .day.empty { background: transparent; cursor: default; }
+  .day.off { background: transparent; border: 1px dashed var(--border); cursor: default; }
+  .day.off .num { opacity: .6; }
+  .day.today { box-shadow: inset 0 0 0 2px var(--text-2); }
+  .day.selected { box-shadow: inset 0 0 0 2px var(--text); }
+  .day.l1 { background: var(--heat-1); } .day.l2 { background: var(--heat-2); }
+  .day.l3 { background: var(--heat-3); } .day.l4 { background: var(--heat-4); } .day.l5 { background: var(--heat-5); }
+  .day.ink-light .num, .day.ink-light .cnt { color: #fff; }
+  .day.ink-dark .num, .day.ink-dark .cnt { color: var(--heat-ink-dark); }
+  .legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; color: var(--text-3); font-size: 12px; margin-top: 12px; }
+  .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+
+  /* Details */
+  .details { margin-top: 16px; padding: 18px 22px; }
+  .details h3 { margin: 0 0 10px; font-size: 15px; font-weight: 600; }
+  .details h3 span { color: var(--text-3); font-weight: 400; }
+  .apps { list-style: none; margin: 0; padding: 0; position: relative; }
+  .apps.scroll { overflow-y: auto; padding-right: 8px; border-bottom: 1px solid var(--grid); }
+  .apps li { display: flex; align-items: baseline; gap: 12px; padding: 9px 0; border-top: 1px solid var(--grid); }
+  .apps li:first-child { border-top: 0; }
+  .apps .when { color: var(--text-3); font-size: 12px; font-variant-numeric: tabular-nums; min-width: 78px; }
+  .apps a { color: var(--text); text-decoration: none; font-weight: 500; }
+  .apps a:hover { color: var(--series); text-decoration: underline; }
+  .apps .co { color: var(--text-2); }
+  .apps .ext { margin-left: auto; font-size: 11px; color: var(--text-3); background: var(--surface-2); border-radius: 6px; padding: 1px 7px; text-transform: uppercase; }
+  .empty-msg { color: var(--text-3); }
+
+  .missing { padding: 28px; text-align: center; color: var(--text-2); }
+  .missing code { background: var(--surface-2); padding: 2px 6px; border-radius: 6px; }
+
+  /* LinkedIn sweep */
+  .sweep { margin-top: 16px; padding: 18px 22px 20px; }
+  .sweep h3 { margin: 0; font-size: 15px; font-weight: 600; }
+  .sw-group { margin-top: 14px; }
+  .sw-label { color: var(--text-2); font-size: 12.5px; margin-bottom: 6px; display: flex; gap: 10px; align-items: baseline; }
+  .sw-label button { border: 0; background: none; color: var(--series); font: inherit; font-size: 12px; cursor: pointer; padding: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text-2);
+    font: inherit; font-size: 13px; padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .chip small { color: var(--text-3); margin-left: 4px; }
+  .chip[aria-pressed="true"] { background: var(--series-soft); border-color: var(--series); color: var(--text); font-weight: 600; }
+  .chip:focus-visible, .sw-btn:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+  .sw-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--grid); }
+  .sw-bar .count { color: var(--text-2); font-size: 13px; margin-right: auto; }
+  .sw-btn {
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-size: 13px; padding: 7px 14px; border-radius: 10px; cursor: pointer;
+  }
+  .sw-btn.primary { background: var(--series); border-color: var(--series); color: #fff; font-weight: 600; }
+  .sw-btn:disabled { opacity: .4; cursor: default; }
+  .sw-msg { color: var(--text-2); font-size: 12.5px; margin-top: 8px; min-height: 1em; }
+  .links { list-style: none; margin: 10px 0 0; padding: 0; }
+  .links li { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--grid); }
+  .links li:first-child { border-top: 0; }
+  .links label { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; cursor: pointer; }
+  .links input { accent-color: var(--series); width: 15px; height: 15px; }
+  .links .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .links .lbl span { color: var(--text-3); }
+  .links li.done .lbl { color: var(--text-3); }
+  .links .tick { color: var(--series); font-size: 12px; }
+  .links a { font-size: 12.5px; color: var(--series); text-decoration: none; white-space: nowrap; }
+  .links a:hover { text-decoration: underline; }
+
+  .cat-filter { margin: -6px 0 16px; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; flex: none; }
+  .panel-right { display: flex; align-items: center; gap: 12px; }
+  .seg-sm button { padding: 4px 12px; font-size: 12.5px; }
+  .series-legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12.5px; color: var(--text-2); margin: 4px 0 12px; }
+  .series-legend[hidden] { display: none; }
+  .series-legend span { display: inline-flex; align-items: center; }
+  .series-legend b { color: var(--text); font-weight: 600; margin-left: 5px; font-variant-numeric: tabular-nums; }
+  .tip .t-break li { display: flex; align-items: center; }
+  .tip .t-break li span { overflow: hidden; text-overflow: ellipsis; }
+  .tip .t-break b { margin-left: auto; padding-left: 14px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .apps .cat { display: inline-flex; align-items: center; text-transform: none; }
+  .apps .cat .sw { width: 8px; height: 8px; margin-right: 5px; }
+
+  /* Table view */
+  .tbl-wrap { max-height: 440px; overflow: auto; border: 1px solid var(--grid); border-radius: 10px; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .tbl th {
+    position: sticky; top: 0; z-index: 1; background: var(--surface); color: var(--text-2);
+    font-weight: 600; text-align: right; vertical-align: bottom; padding: 9px 12px;
+    border-bottom: 1px solid var(--border); max-width: 120px;
+  }
+  .tbl th .sw { display: inline-block; vertical-align: -1px; }
+  .tbl td { padding: 7px 12px; text-align: right; border-top: 1px solid var(--grid); }
+  .tbl th:first-child, .tbl td:first-child { text-align: left; white-space: nowrap; }
+  .tbl tbody tr { cursor: pointer; }
+  .tbl tbody tr:hover { background: var(--hover-band); }
+  .tbl tbody tr.selected { background: var(--series-soft); }
+  .tbl td.zero { color: var(--text-3); }
+  .tbl .total { font-weight: 600; color: var(--text); }
+  .tbl tfoot td { position: sticky; bottom: 0; background: var(--surface-2); font-weight: 600; border-top: 1px solid var(--border); }
+
+  /* Transposed table: positions as rows, periods as columns */
+  .tbl-t th, .tbl-t td { white-space: nowrap; }
+  .tbl-t th { max-width: none; text-align: center; line-height: 1.25; }
+  .tbl-t th small { display: block; color: var(--text-3); font-weight: 400; font-size: 11px; }
+  .tbl-t td { text-align: center; }
+  .tbl-t tbody tr { cursor: default; }
+  .tbl-t tbody tr:hover { background: none; }
+  .tbl-t [data-i] { cursor: pointer; }
+  .tbl-t td[data-i]:hover, .tbl-t th[data-i]:hover { background: var(--hover-band); }
+  .tbl-t .selected { background: var(--series-soft); }
+  .tbl-t th.selected { color: var(--text); }
+  /* Pin the position names (left) and row totals (right) while scrolling sideways */
+  .tbl-t th:first-child, .tbl-t td:first-child {
+    position: sticky; left: 0; z-index: 2; background: var(--surface); text-align: left;
+    box-shadow: 1px 0 0 var(--border);
+  }
+  .tbl-t th:last-child, .tbl-t td:last-child {
+    position: sticky; right: 0; z-index: 2; background: var(--surface);
+    box-shadow: -1px 0 0 var(--border);
+  }
+  .tbl-t thead th:first-child, .tbl-t thead th:last-child { z-index: 3; }
+  .tbl-t tfoot td:first-child, .tbl-t tfoot td:last-child { background: var(--surface-2); }
+
+  /* Goal colors for table numbers (declared after .selected so they win) */
+  .tbl-t td.lv-gd, .sw.lv-gd { background: var(--lv-gd-bg); color: var(--lv-gd-fg); }
+  .tbl-t td.lv-g,  .sw.lv-g  { background: var(--lv-g-bg);  color: var(--lv-g-fg); }
+  .tbl-t td.lv-gl, .sw.lv-gl { background: var(--lv-gl-bg); color: var(--lv-gl-fg); }
+  .tbl-t td.lv-rl, .sw.lv-rl { background: var(--lv-rl-bg); color: var(--lv-rl-fg); }
+  .tbl-t td.lv-r,  .sw.lv-r  { background: var(--lv-r-bg);  color: var(--lv-r-fg); }
+  .tbl-t td[class*="lv-"] { font-weight: 600; box-shadow: inset 0 0 0 1px var(--surface); }
+  .tbl-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 10px; font-size: 12px; color: var(--text-3); }
+  .tbl-key b { color: var(--text-2); font-weight: 600; }
+  .tbl-key b:not(:first-child) { margin-left: 10px; }
+  .tbl-key span { display: inline-flex; align-items: center; }
+  .chip:focus-visible { outline: 2px solid var(--series); outline-offset: 2px; }
+
+  @media (max-width: 820px) { .kpis { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 560px) {
+    .wrap { padding: 24px 16px 48px; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .day { height: 46px; }
+    .day .cnt { font-size: 14px; }
+    .day .num { top: 3px; left: 5px; font-size: 10px; }
+    .cal-grid { gap: 4px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Job Applications</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="seg" id="view-seg" role="group" aria-label="View">
+      <button data-view="daily">Daily</button>
+      <button data-view="weekly">Weekly</button>
+      <button data-view="monthly">Monthly</button>
+      <button data-view="calendar">Calendar</button>
+    </div>
+  </header>
+
+  <nav class="chips cat-filter" id="cat-filter" aria-label="Filter by position"></nav>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="card panel">
+    <div class="panel-head">
+      <div>
+        <h2 id="panel-title"></h2>
+        <div id="panel-hint" class="hint"></div>
+      </div>
+      <div class="panel-right">
+        <div id="panel-tools"></div>
+        <div class="seg seg-sm" id="mode-seg" role="group" aria-label="Display as">
+          <button data-mode="chart">Chart</button>
+          <button data-mode="table">Table</button>
+        </div>
+      </div>
+    </div>
+    <div class="series-legend" id="legend" aria-label="Legend"></div>
+    <div class="chart" id="chart"></div>
+  </section>
+
+  <section class="card details" id="details"></section>
+
+  <section class="card sweep" id="sweep">
+    <div class="panel-head">
+      <h3>LinkedIn sweep</h3>
+      <div class="hint">Selections are saved · ✓ = opened today</div>
+    </div>
+    <div class="sw-group">
+      <div class="sw-label">Roles <button data-all="roles">all</button><button data-none="roles">none</button></div>
+      <div class="chips" id="sw-roles"></div>
+    </div>
+    <div class="sw-group">
+      <div class="sw-label">Areas <button data-all="areas">all</button><button data-none="areas">none</button></div>
+      <div class="chips" id="sw-areas"></div>
+    </div>
+    <div class="sw-group">
+      <div class="sw-label">Posted within</div>
+      <div class="chips" id="sw-time"></div>
+    </div>
+    <div class="sw-bar">
+      <span class="count" id="sw-count"></span>
+      <button class="sw-btn" id="sw-reset">Clear ✓ marks</button>
+      <button class="sw-btn primary" id="sw-open">Open selected</button>
+    </div>
+    <div class="sw-msg" id="sw-msg" role="status"></div>
+    <ul class="links" id="sw-links"></ul>
+  </section>
+</div>
+
+<script src="data.js" charset="utf-8"></script>
+<script>
+(function () {
+  const root = document.documentElement;
+  const $ = (id) => document.getElementById(id);
+
+  if (!window.APPLICATIONS) {
+    document.querySelector('.wrap').innerHTML =
+      '<div class="card missing">No data yet. Double-click <code>Open Dashboard.bat</code> to scan your applications folder.</div>';
+    return;
+  }
+
+  // ---------- data ----------
+  // ALL = every scanned application; APPS = those in the selected positions.
+  const OTHER = 'Uncategorized';
+  const ALL = window.APPLICATIONS.map((a) => ({ ...a, category: a.category || OTHER }));
+  let APPS = ALL;
+  const START = window.START_DATE;
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  const pad = (n) => String(n).padStart(2, '0');
+  const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parse = (k) => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const fmtDay = (k) => { const d = parse(k); return `${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`; };
+  const fmtShort = (k) => { const d = parse(k); return `${MONTHS[d.getMonth()]} ${d.getDate()}`; };
+  const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  const todayKey = keyOf(new Date());
+  const lastAppKey = ALL.length ? ALL[ALL.length - 1].date : START;
+  const endKey = lastAppKey > todayKey ? lastAppKey : todayKey;
+
+  const monthLabel = (mk) => { const [y, m] = mk.split('-').map(Number); return `${MONTHS_LONG[m - 1]} ${y}`; };
+  const appsInMonth = (mk) => APPS.filter((a) => a.date.startsWith(mk));
+
+  // Weeks run Monday-Sunday, keyed by their Monday.
+  const mondayOf = (k) => { const d = parse(k); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return keyOf(d); };
+  const weekEnd = (wk) => { const d = parse(wk); d.setDate(d.getDate() + 6); return keyOf(d); };
+  const weekLabel = (wk) => `${fmtShort(wk)} – ${fmtShort(weekEnd(wk))}`;
+  const appsInWeek = (wk) => { const e = weekEnd(wk); return APPS.filter((a) => a.date >= wk && a.date <= e); };
+
+  // Positions = the subfolders of "applied". Colors are assigned by alphabetical
+  // order, so a position keeps its color when you filter or when counts change.
+  const CATS = [...new Set(ALL.map((a) => a.category))]
+    .sort((a, b) => (a === OTHER) - (b === OTHER) || a.localeCompare(b, undefined, { sensitivity: 'base' }))
+    .map((name, i) => ({
+      name,
+      count: ALL.filter((a) => a.category === name).length,
+      color: name === OTHER || i >= 8 ? 'var(--c-other)' : `var(--c${i + 1})`,
+    }));
+  const CAT = Object.fromEntries(CATS.map((c) => [c.name, c]));
+  const swatch = (name) => `<i class="sw" style="background:${CAT[name].color}"></i>`;
+
+  // Day/week/month totals (overall and per position) for the current APPS.
+  const addInto = (dst, src) => { for (const k in src) dst[k] = (dst[k] || 0) + src[k]; };
+  let byDay, days, months, weeks;
+  function rebuild() {
+    byDay = new Map();
+    for (const a of APPS) {
+      if (!byDay.has(a.date)) byDay.set(a.date, []);
+      byDay.get(a.date).push(a);
+    }
+
+    days = [];
+    for (let d = parse(START); keyOf(d) <= endKey; d.setDate(d.getDate() + 1)) {
+      const k = keyOf(d);
+      const list = byDay.get(k) || [];
+      const by = {};
+      for (const a of list) by[a.category] = (by[a.category] || 0) + 1;
+      days.push({ key: k, count: list.length, by });
+    }
+
+    months = [];
+    for (const d of days) {
+      const mk = d.key.slice(0, 7);
+      let m = months[months.length - 1];
+      if (!m || m.key !== mk) { m = { key: mk, count: 0, days: 0, by: {} }; months.push(m); }
+      m.count += d.count; m.days++; addInto(m.by, d.by);
+    }
+    // The range starts Jul 30, so the first month is a 2-day stub - drop it when empty.
+    if (months.length > 1 && months[0].count === 0) months.shift();
+
+    weeks = [];
+    for (const d of days) {
+      const wk = mondayOf(d.key);
+      let w = weeks[weeks.length - 1];
+      if (!w || w.key !== wk) { w = { key: wk, count: 0, days: 0, by: {} }; weeks.push(w); }
+      w.count += d.count; w.days++; addInto(w.by, d.by);
+    }
+    if (weeks.length > 1 && weeks[0].count === 0) weeks.shift();
+  }
+
+  // "Senior Engineer _ Acme _ LinkedIn.mhtml" -> role + company
+  const SOURCES = /^(linkedin|handshake|indeed|glassdoor|careers?|jobs?)$/i;
+  function describe(a) {
+    const dot = a.name.lastIndexOf('.');
+    const base = dot > 0 ? a.name.slice(0, dot) : a.name;
+    const ext = dot > 0 ? a.name.slice(dot + 1) : '';
+    const parts = base.split(' _ ').map((s) => s.trim()).filter((s) => s && !SOURCES.test(s));
+    const role = parts.shift() || base;
+    const company = parts.join(' · ').replace(/\s+(careers?|jobs)$/i, '');
+    return { role: /^\d+$/.test(role) ? `Posting #${role}` : role, company, ext };
+  }
+  const fileHref = (p) => 'file:///' + p.split('\\').map(encodeURIComponent).join('/').replace(/^([A-Za-z])%3A/, '$1:');
+
+  // ---------- state ----------
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  };
+  const allNames = () => new Set(CATS.map((c) => c.name));
+  const state = {
+    view: ['daily', 'weekly', 'monthly', 'calendar'].includes(store.get('jobdash.view')) ? store.get('jobdash.view') : 'daily',
+    mode: store.get('jobdash.mode') === 'chart' ? 'chart' : 'table',
+    pick: null,           // { type: 'day' | 'week' | 'month', key }
+    calMonth: endKey.slice(0, 7),
+    sel: allNames(),      // selected positions
+  };
+  const selCats = () => CATS.filter((c) => state.sel.has(c.name));
+  const allSelected = () => state.sel.size === CATS.length;
+  const isPicked = (type, key) => !!state.pick && state.pick.type === type && state.pick.key === key;
+
+  function setSel(names) {
+    const valid = names.filter((n) => CAT[n]);
+    state.sel = valid.length ? new Set(valid) : allNames();
+    store.set('jobdash.sel', JSON.stringify(allSelected() ? [] : [...state.sel]));
+    APPS = allSelected() ? ALL : ALL.filter((a) => state.sel.has(a.category));
+    rebuild();
+    renderFilter();
+    renderKpis();
+  }
+  try { setSel(JSON.parse(store.get('jobdash.sel') || '[]')); } catch (e) { setSel([]); }
+
+  function pickLatestDay() {
+    const last = [...days].reverse().find((d) => d.count > 0);
+    state.pick = last ? { type: 'day', key: last.key } : null;
+    if (last) state.calMonth = last.key.slice(0, 7);
+  }
+  pickLatestDay();
+
+  function pick(type, key) {
+    state.pick = { type, key };
+    if (type === 'day') state.calMonth = key.slice(0, 7);
+    render();
+  }
+
+  // ---------- position filter (multi-select) ----------
+  function renderFilter() {
+    const all = allSelected();
+    const chip = (name, label, count, on, sw) =>
+      `<button class="chip" data-cat="${esc(name)}" aria-pressed="${on}">${sw}${esc(label)}<small>${count}</small></button>`;
+    $('cat-filter').innerHTML = chip('', 'All positions', ALL.length, all, '') +
+      CATS.map((c) => chip(c.name, c.name, c.count, !all && state.sel.has(c.name), swatch(c.name))).join('');
+  }
+  $('cat-filter').addEventListener('click', (e) => {
+    const b = e.target.closest('.chip');
+    if (!b) return;
+    const name = b.dataset.cat;
+    if (!name) setSel([]);                          // All positions
+    else if (allSelected()) setSel([name]);         // from "all", focus on one
+    else {                                          // otherwise toggle it in/out
+      const next = new Set(state.sel);
+      next.has(name) ? next.delete(name) : next.add(name);
+      setSel([...next]);
+    }
+    // A picked week/month still makes sense filtered; a picked day may now be empty.
+    if (!state.pick || state.pick.type === 'day') pickLatestDay();
+    render();
+  });
+
+  // ---------- KPIs ----------
+  function renderKpis() {
+    const total = APPS.length;
+    const last7 = days.slice(-7).reduce((s, d) => s + d.count, 0);
+    const avg = days.length ? total / days.length : 0;
+    const best = days.reduce((b, d) => (d.count > b.count ? d : b), { count: 0 });
+    let streak = 0, i = days.length - 1;
+    if (i >= 0 && days[i].count === 0 && days[i].key === todayKey) i--; // today isn't over yet
+    for (; i >= 0 && days[i].count > 0; i--) streak++;
+
+    const scope = allSelected() ? '' : state.sel.size === 1 ? `${[...state.sel][0]} · ` : `${state.sel.size} positions · `;
+    const tiles = [
+      ['Total applied', total, `${scope}since ${fmtShort(START)}`],
+      ['Last 7 days', last7, `${(last7 / 7).toFixed(1)} per day`],
+      ['Daily average', avg.toFixed(1), `over ${plural(days.length, 'day')}`],
+      ['Best day', best.count, best.key ? fmtShort(best.key) : '—'],
+      ['Current streak', streak, streak === 1 ? 'day' : 'days in a row'],
+    ];
+    $('kpis').innerHTML = tiles.map(([l, v, n]) =>
+      `<div class="card kpi"><div class="label">${l}</div><div class="value">${v}</div><div class="note">${esc(n)}</div></div>`).join('');
+    $('sub').textContent = `${fmtDay(START)} – ${fmtDay(endKey)} · scanned ${new Date(window.GENERATED_AT).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}`;
+  }
+
+  // ---------- stacked bar chart ----------
+  function niceScale(max) {
+    const raw = max / 4;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+    const step = Math.max(1, [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= raw));
+    return { step, top: Math.ceil(max / step) * step || step };
+  }
+  function topRounded(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h);
+    return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`;
+  }
+
+  // items: [{ count, by, tick?, tipTitle, selected, onPick }]
+  function renderBars(items, { labelAll = false, labelMax = false } = {}) {
+    const el = $('chart');
+    const W = el.clientWidth, H = 300;
+    const m = { t: 24, r: 4, b: 30, l: 34 };
+    const pw = W - m.l - m.r, ph = H - m.t - m.b;
+    const max = Math.max(1, ...items.map((d) => d.count));
+    const { step, top } = niceScale(max);
+    const band = pw / items.length;
+    const gap = Math.max(2, band * (labelAll ? 0.45 : 0.28));
+    const bw = Math.max(1, Math.min(band - gap, 72));
+    const y = (v) => m.t + ph - (v / top) * ph;
+    const maxIdx = items.findIndex((d) => d.count === max);
+    const cats = selCats();
+
+    let s = `<svg width="${W}" height="${H}" role="img" aria-label="Applications per period, stacked by position">`;
+    for (let v = 0; v <= top; v += step) {
+      if (v) s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/>`;
+      s += `<text class="axis" x="${m.l - 10}" y="${y(v)}" dy="0.32em" text-anchor="end">${v}</text>`;
+    }
+    items.forEach((d, i) => {
+      const cx = m.l + i * band + band / 2, x = cx - bw / 2;
+      // Stack segments bottom-up in the fixed position order; a 2px gap separates them.
+      const segs = cats.filter((c) => d.by[c.name]);
+      let base = m.t + ph;
+      segs.forEach((c, j) => {
+        const h = (d.by[c.name] / top) * ph;
+        const yTop = base - h;
+        if (j === segs.length - 1) s += `<path d="${topRounded(x, yTop, bw, h, 4)}" style="fill:${c.color}"/>`;
+        else s += `<rect x="${x}" y="${yTop + 2}" width="${bw}" height="${Math.max(1, h - 2)}" style="fill:${c.color}"/>`;
+        base = yTop;
+      });
+      if (d.count > 0 && (labelAll || (labelMax && i === maxIdx)))
+        s += `<text class="val" x="${cx}" y="${y(d.count) - 7}" text-anchor="middle">${d.count}</text>`;
+      if (d.tick) s += `<text class="axis" x="${cx}" y="${H - 8}" text-anchor="middle">${d.tick}</text>`;
+    });
+    s += `<line class="baseline" x1="${m.l}" x2="${W - m.r}" y1="${m.t + ph}" y2="${m.t + ph}"/>`;
+    items.forEach((d, i) => {
+      s += `<rect class="hit${d.selected ? ' selected' : ''}" data-i="${i}" x="${m.l + i * band}" y="${m.t}" width="${band}" height="${ph}" rx="4"/>`;
+    });
+    s += `</svg><div class="tip" id="tip"></div>`;
+    el.innerHTML = s;
+
+    const tip = $('tip');
+    const svg = el.querySelector('svg');
+    svg.addEventListener('mousemove', (e) => {
+      const t = e.target.closest('.hit');
+      if (!t) { tip.classList.remove('show'); return; }
+      const d = items[+t.dataset.i];
+      // Breakdown listed top-down, matching the stack.
+      const parts = cats.filter((c) => d.by[c.name]).reverse()
+        .map((c) => `<li>${swatch(c.name)}<span>${esc(c.name)}</span><b>${d.by[c.name]}</b></li>`).join('');
+      tip.innerHTML = `<div class="t-date">${d.tipTitle}</div><div class="t-count">${plural(d.count, 'application')}</div>` +
+        (parts ? `<ul class="t-list t-break">${parts}</ul><div class="t-more">Click to see the list</div>` : '');
+      const r = el.getBoundingClientRect();
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      let left = e.clientX - r.left + 14, topPx = e.clientY - r.top - th - 12;
+      if (left + tw > r.width) left = e.clientX - r.left - tw - 14;
+      if (topPx < 0) topPx = e.clientY - r.top + 16;
+      tip.style.left = Math.max(0, left) + 'px';
+      tip.style.top = topPx + 'px';
+      tip.classList.add('show');
+    });
+    svg.addEventListener('mouseleave', () => tip.classList.remove('show'));
+    svg.addEventListener('click', (e) => {
+      const t = e.target.closest('.hit');
+      if (t) items[+t.dataset.i].onPick();
+    });
+  }
+
+  // ---------- table ----------
+  // Positions down the side, periods across the top (oldest -> newest).
+  // items: [{ col, tipTitle, count, by, selected, onPick }]
+  // Color thresholds are set for one day; weekly and monthly multiply them.
+  const TABLE_SCALE = { daily: 1, weekly: 4, monthly: 40 };
+  function levelOf(n, isTotal, k) {
+    if (isTotal) return n > 20 * k ? 'lv-gd' : n > 10 * k ? 'lv-gl' : n > 5 * k ? 'lv-rl' : 'lv-r';
+    if (!n) return '';                     // empty position cells stay neutral
+    return n > 10 * k ? 'lv-g' : n >= 5 * k ? 'lv-gl' : 'lv-rl';
+  }
+
+  function renderTable(items, periodName) {
+    const el = $('chart');
+    const prev = el.querySelector('.tbl-wrap');
+    const keepScroll = prev && prev.dataset.view === state.view ? prev.scrollLeft : null;
+    const cats = selCats();
+    const sel = (c) => (c.selected ? ' selected' : '');
+    const k = TABLE_SCALE[state.view] || 1;
+    const num = (n, i, cls = '') => {
+      const isTotal = cls === 'total';
+      const lv = levelOf(n, isTotal, k);
+      const classes = [n || isTotal ? '' : 'zero', cls, lv].filter(Boolean).join(' ');
+      return `<td data-i="${i}" class="${classes}${sel(items[i])}">${n || (isTotal ? 0 : '–')}</td>`;
+    };
+    const grand = items.reduce((s, c) => s + c.count, 0);
+
+    let s = `<div class="tbl-wrap" data-view="${state.view}"><table class="tbl tbl-t" aria-label="Applications per ${periodName.toLowerCase()} by position"><thead><tr><th>Position</th>` +
+      items.map((c, i) => `<th data-i="${i}" class="${sel(c)}" title="${esc(c.tipTitle)}">${c.col}</th>`).join('') +
+      '<th class="total">Total</th></tr></thead><tbody>';
+    s += cats.map((cat) =>
+      `<tr><td>${swatch(cat.name)}${esc(cat.name)}</td>` +
+      items.map((c, i) => num(c.by[cat.name] || 0, i)).join('') +
+      `<td class="total">${items.reduce((n, c) => n + (c.by[cat.name] || 0), 0)}</td></tr>`).join('');
+    s += '</tbody>';
+    if (cats.length > 1) {
+      s += '<tfoot><tr><td>Total</td>' + items.map((c, i) => num(c.count, i, 'total')).join('') +
+        `<td class="total">${grand}</td></tr></tfoot>`;
+    }
+    s += '</table></div>';
+    // Key for the color thresholds, scaled to this view.
+    const key = (lv, text) => `<span><i class="sw ${lv}"></i>${text}</span>`;
+    s += `<div class="tbl-key"><b>Per position</b>` +
+      key('lv-g', `&gt;${10 * k}`) + key('lv-gl', `${5 * k}–${10 * k}`) + key('lv-rl', `1–${5 * k - 1}`) +
+      (cats.length > 1
+        ? `<b>Total</b>` + key('lv-gd', `&gt;${20 * k}`) + key('lv-gl', `${10 * k + 1}–${20 * k}`) +
+          key('lv-rl', `${5 * k + 1}–${10 * k}`) + key('lv-r', `≤${5 * k}`)
+        : '') + `</div>`;
+    if (!items.length) s = '<p class="empty-msg">No applications in the selected positions yet.</p>';
+    el.innerHTML = s;
+
+    const wrap = el.querySelector('.tbl-wrap');
+    if (!wrap) return;
+    // First time in this view: start at the newest period (right end).
+    wrap.scrollLeft = keepScroll === null ? wrap.scrollWidth : keepScroll;
+    wrap.addEventListener('click', (e) => {
+      const cell = e.target.closest('[data-i]');
+      if (cell) items[+cell.dataset.i].onPick();
+    });
+  }
+
+  // ---------- views ----------
+  const setHead = (title, hint) => { $('panel-title').textContent = title; $('panel-hint').textContent = hint; $('panel-tools').innerHTML = ''; };
+  const asTable = () => state.mode === 'table';
+
+  function renderDaily() {
+    setHead('Applications per day', asTable()
+      ? 'Every day is shown · scroll sideways for older days · click a column to list it'
+      : 'Hover for details · click a bar to list them');
+    const band = ($('chart').clientWidth - 38) / days.length;
+    const weekStride = 7 * band >= 52 ? 1 : 7 * band >= 26 ? 2 : 4;
+    let mondays = 0;
+    const items = days.map((d) => {
+      const isMon = parse(d.key).getDay() === 1;
+      return {
+        count: d.count, by: d.by, tipTitle: fmtDay(d.key),
+        col: `<small>${fmtDay(d.key).slice(0, 3)}</small>${fmtShort(d.key)}`,
+        tick: isMon && (mondays++ % weekStride === 0) ? fmtShort(d.key) : '',
+        selected: isPicked('day', d.key), onPick: () => pick('day', d.key),
+      };
+    });
+    if (asTable()) renderTable(items, 'Day');
+    else renderBars(items, { labelMax: true });
+  }
+
+  function renderWeekly() {
+    const anyPartial = weeks.some((w) => w.days < 7);
+    setHead('Applications per week', `Weeks run Mon–Sun · click a ${asTable() ? 'column' : 'bar'} to list them` + (anyPartial ? ' · * partial week' : ''));
+    const band = ($('chart').clientWidth - 38) / weeks.length;
+    const stride = band >= 52 ? 1 : band >= 26 ? 2 : 4;
+    const items = weeks.map((w, i) => {
+      const partial = w.days < 7;
+      return {
+        count: w.count, by: w.by, col: `<small>week of</small>${fmtShort(w.key)}${partial ? '*' : ''}`,
+        tick: i % stride === 0 ? fmtShort(w.key) + (partial ? '*' : '') : '',
+        tipTitle: `${weekLabel(w.key)}${partial ? ` · ${plural(w.days, 'day')} counted` : ''}`,
+        selected: isPicked('week', w.key), onPick: () => pick('week', w.key),
+      };
+    });
+    if (asTable()) renderTable(items, 'Week');
+    else renderBars(items, { labelAll: true });
+  }
+
+  function renderMonthly() {
+    const isPartial = (mo) => { const [y, m] = mo.key.split('-').map(Number); return mo.days < new Date(y, m, 0).getDate(); };
+    setHead('Applications per month', `Click a ${asTable() ? 'column' : 'bar'} to list its applications` + (months.some(isPartial) ? ' · * partial month' : ''));
+    const items = months.map((mo) => {
+      const m = Number(mo.key.slice(5, 7));
+      const partial = isPartial(mo);
+      return {
+        count: mo.count, by: mo.by, col: `<small>${mo.key.slice(0, 4)}</small>${MONTHS[m - 1]}${partial ? '*' : ''}`,
+        tick: MONTHS[m - 1] + (partial ? '*' : ''),
+        tipTitle: `${monthLabel(mo.key)}${partial ? ` · ${plural(mo.days, 'day')} counted` : ''}`,
+        selected: isPicked('month', mo.key), onPick: () => pick('month', mo.key),
+      };
+    });
+    if (asTable()) renderTable(items, 'Month');
+    else renderBars(items, { labelAll: true });
+  }
+
+  function renderCalendar() {
+    setHead('Calendar', allSelected() ? 'All positions' : `Showing ${selCats().map((c) => c.name).join(', ')}`);
+    const mk = state.calMonth;
+    const [y, m] = mk.split('-').map(Number);
+    const firstMk = START.slice(0, 7), lastMk = endKey.slice(0, 7);
+    $('panel-tools').innerHTML =
+      `<div class="cal-nav"><button id="prev" aria-label="Previous month" ${mk <= firstMk ? 'disabled' : ''}>‹</button>` +
+      `<span class="month">${monthLabel(mk)}</span>` +
+      `<button id="next" aria-label="Next month" ${mk >= lastMk ? 'disabled' : ''}>›</button></div>`;
+    const shift = (n) => { const d = new Date(y, m - 1 + n, 1); state.calMonth = keyOf(d).slice(0, 7); render(); };
+    $('prev').onclick = () => shift(-1);
+    $('next').onclick = () => shift(1);
+
+    const max = Math.max(1, ...days.map((d) => d.count));
+    const level = (c) => (c <= 0 ? 0 : Math.min(5, Math.max(1, Math.ceil((c / max) * 5))));
+    const dark = getComputedStyle(root).colorScheme === 'dark';
+
+    let s = '<div class="cal-grid">' + ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d) => `<div class="dow">${d}</div>`).join('');
+    const first = new Date(y, m - 1, 1);
+    for (let i = 0; i < first.getDay(); i++) s += '<div class="day empty"></div>';
+    const daysIn = new Date(y, m, 0).getDate();
+    for (let d = 1; d <= daysIn; d++) {
+      const k = `${mk}-${pad(d)}`;
+      const inRange = k >= START && k <= endKey;
+      if (!inRange) { s += `<div class="day off"><span class="num">${d}</span></div>`; continue; }
+      const c = (byDay.get(k) || []).length;
+      const lv = level(c);
+      const ink = lv === 0 ? '' : (dark ? (lv >= 4 ? 'ink-dark' : 'ink-light') : (lv >= 3 ? 'ink-light' : 'ink-dark'));
+      const cls = ['day', lv ? 'l' + lv : '', ink, k === todayKey ? 'today' : '', isPicked('day', k) ? 'selected' : ''].filter(Boolean).join(' ');
+      s += `<button class="${cls}" data-k="${k}" title="${fmtDay(k)}: ${plural(c, 'application')}">` +
+           `<span class="num">${d}</span><span class="cnt">${c || ''}</span></button>`;
+    }
+    s += '</div>';
+    s += `<div class="legend">0 <i style="background:var(--surface-2)"></i>` +
+         [1,2,3,4,5].map((l) => `<i style="background:var(--heat-${l})"></i>`).join('') + ` ${max} per day</div>`;
+    $('chart').innerHTML = s;
+    $('chart').querySelectorAll('button.day').forEach((b) => b.onclick = () => pick('day', b.dataset.k));
+  }
+
+  // Legend for the stacked bars: selected positions, in stack order, with their totals.
+  function renderLegend() {
+    const el = $('legend');
+    el.hidden = state.view === 'calendar' || asTable();
+    if (el.hidden) return;
+    el.innerHTML = selCats().map((c) =>
+      `<span>${swatch(c.name)}${esc(c.name)}<b>${APPS.filter((a) => a.category === c.name).length}</b></span>`).join('');
+  }
+
+  function renderDetails() {
+    const p = state.pick;
+    if (!p) { $('details').innerHTML = '<p class="empty-msg">Pick a day, week or month to see its applications.</p>'; return; }
+    const list = p.type === 'day' ? (byDay.get(p.key) || []) : p.type === 'week' ? appsInWeek(p.key) : appsInMonth(p.key);
+    const title = p.type === 'day' ? fmtDay(p.key) : p.type === 'week' ? `Week of ${weekLabel(p.key)}` : monthLabel(p.key);
+    const showCat = state.sel.size > 1;
+    const rows = list.slice().reverse().map((a) => {
+      const d = describe(a);
+      const when = p.type === 'day' ? a.time : `${fmtShort(a.date)} · ${a.time}`;
+      return `<li><span class="when">${when}</span><span><a href="${fileHref(a.path)}" title="Open saved posting">${esc(d.role)}</a>` +
+        (d.company ? ` <span class="co">· ${esc(d.company)}</span>` : '') + `</span>` +
+        (showCat ? `<span class="ext cat">${swatch(a.category)}${esc(a.category)}</span>` : '') +
+        (d.ext ? `<span class="ext"${showCat ? ' style="margin-left:0"' : ''}>${esc(d.ext)}</span>` : '') + `</li>`;
+    }).join('');
+    const MAX_ROWS = 5;
+    $('details').innerHTML = `<h3>${title} <span>· ${plural(list.length, 'application')}`+
+      (rows ? `<ul class="apps">${rows}</ul>` : '<p class="empty-msg">No applications in the selected positions.</p>');
+    // Show 5 rows, scroll the rest: cap the height at where the 6th row starts.
+    const ul = $('details').querySelector('.apps');
+    if (ul && ul.children.length > MAX_ROWS) {
+      ul.classList.add('scroll');
+      ul.style.maxHeight = `${ul.children[MAX_ROWS].offsetTop - ul.children[0].offsetTop}px`;
+    }
+  }
+
+  function render() {
+    document.querySelectorAll('#view-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
+    document.querySelectorAll('#mode-seg button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode)));
+    $('mode-seg').style.display = state.view === 'calendar' ? 'none' : '';
+    ({ daily: renderDaily, weekly: renderWeekly, monthly: renderMonthly, calendar: renderCalendar })[state.view]();
+    renderLegend();
+    renderDetails();
+  }
+
+  document.querySelectorAll('#view-seg button').forEach((b) => b.addEventListener('click', () => {
+    state.view = b.dataset.view; store.set('jobdash.view', state.view); render();
+  }));
+  document.querySelectorAll('#mode-seg button').forEach((b) => b.addEventListener('click', () => {
+    state.mode = b.dataset.mode; store.set('jobdash.mode', state.mode); render();
+  }));
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(render, 120); });
+
+  render();
+})();
+</script>
+<script>
+// ---------- LinkedIn sweep (independent of data.js) ----------
+(function () {
+  const ROLES = ['IT entry level', 'Software entry level', 'Automation entry level', 'Ai agent entry level', 'Data science entry level'];
+  const AREAS = [
+    { name: 'Dallas-Fort Worth, TX', kind: 'metro', id: '90000031' },
+    { name: 'Nashville, TN', kind: 'metro', id: '90000536' },
+    { name: 'Jacksonville, FL', kind: 'metro', id: '90000359' },
+    { name: 'Charlotte, NC', kind: 'metro', id: '90000152' },
+    { name: 'Seattle, WA', kind: 'metro', id: '119319718' },
+    { name: 'Seattle, WA', kind: 'city', id: '104116203' },
+    { name: 'Minnesota', kind: 'state', id: '103411167' },
+    { name: 'Texas', kind: 'state', id: '102748797' },
+    { name: 'North Carolina', kind: 'state', id: '103255397' },
+    { name: 'Georgia', kind: 'state', id: '103950076' },
+  ];
+  const TIMES = [['1 day', 'r86400'], ['2 days', 'r172800'], ['3 days', 'r259200'], ['4 days', 'r345600'], ['5 days', 'r432000'], ['1 week', 'r604800']];
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+
+  // sel: chosen roles / area ids / timeline, plus individual links unticked in the list
+  const sel = Object.assign({ roles: [], areas: [], tpr: 'r86400', skip: [] }, load('jobdash.sweep', {}));
+  let opened = load('jobdash.sweep.opened', {});
+  if (opened.date !== today()) opened = { date: today(), keys: [] };   // ✓ marks reset each day
+
+  const persist = () => { save('jobdash.sweep', sel); save('jobdash.sweep.opened', opened); };
+  const toggle = (arr, v) => (arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
+
+  function links() {
+    const out = [];
+    for (const role of ROLES.filter((r) => sel.roles.includes(r)))
+      for (const a of AREAS.filter((x) => sel.areas.includes(x.id))) {
+        const q = new URLSearchParams({ keywords: role, origin: 'JOB_SEARCH_PAGE_JOB_FILTER', geoId: a.id, f_TPR: sel.tpr });
+        out.push({ key: `${role}|${a.id}`, role, area: a, url: 'https://www.linkedin.com/jobs/search-results/?' + q });
+      }
+    return out;
+  }
+
+  function chips(el, items) {
+    el.innerHTML = items.map((c) =>
+      `<button class="chip" data-v="${esc(c.v)}" aria-pressed="${c.on}">${esc(c.text)}${c.small ? `<small>${c.small}</small>` : ''}</button>`).join('');
+  }
+
+  function render() {
+    chips($('sw-roles'), ROLES.map((r) => ({ v: r, text: r.replace(/ entry level$/i, ''), on: sel.roles.includes(r) })));
+    chips($('sw-areas'), AREAS.map((a) => ({ v: a.id, text: a.name, small: a.kind, on: sel.areas.includes(a.id) })));
+    chips($('sw-time'), TIMES.map(([t, v]) => ({ v, text: t, on: sel.tpr === v })));
+
+    const list = links();
+    $('sw-links').innerHTML = list.map((l) => {
+      const done = opened.keys.includes(l.key);
+      return `<li class="${done ? 'done' : ''}"><label><input type="checkbox" data-k="${esc(l.key)}" ${sel.skip.includes(l.key) ? '' : 'checked'}>` +
+        `<span class="lbl">${esc(l.role)} <span>· ${esc(l.area.name)} (${l.area.kind})</span></span></label>` +
+        (done ? '<span class="tick">✓</span>' : '') +
+        `<a href="${esc(l.url)}" target="_blank" rel="noopener" data-k="${esc(l.key)}">open</a></li>`;
+    }).join('');
+
+    const n = list.filter((l) => !sel.skip.includes(l.key)).length;
+    $('sw-count').textContent = list.length ? `${n} of ${list.length} links selected` : 'Pick at least one role and one area';
+    $('sw-open').textContent = `Open selected (${n})`;
+    $('sw-open').disabled = !n;
+    $('sw-reset').disabled = !opened.keys.length;
+  }
+
+  const markOpened = (k) => { if (!opened.keys.includes(k)) opened.keys.push(k); };
+
+  $('sw-roles').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) { sel.roles = toggle(sel.roles, b.dataset.v); persist(); render(); } });
+  $('sw-areas').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) { sel.areas = toggle(sel.areas, b.dataset.v); persist(); render(); } });
+  $('sw-time').addEventListener('click', (e) => { const b = e.target.closest('.chip'); if (b) { sel.tpr = b.dataset.v; persist(); render(); } });
+  $('sweep').addEventListener('click', (e) => {
+    const all = e.target.dataset.all, none = e.target.dataset.none;
+    if (all) sel[all] = all === 'roles' ? [...ROLES] : AREAS.map((a) => a.id);
+    if (none) sel[none] = [];
+    if (all || none) { persist(); render(); }
+  });
+  $('sw-links').addEventListener('change', (e) => { if (e.target.dataset.k) { sel.skip = toggle(sel.skip, e.target.dataset.k); persist(); render(); } });
+  $('sw-links').addEventListener('click', (e) => { const a = e.target.closest('a'); if (a) { markOpened(a.dataset.k); persist(); setTimeout(render); } });
+
+  $('sw-open').addEventListener('click', () => {
+    const todo = links().filter((l) => !sel.skip.includes(l.key));
+    let blocked = 0;
+    for (const l of todo) {
+      const w = window.open(l.url, '_blank');   // null => pop-up blocker stopped it
+      if (!w) { blocked++; continue; }
+      w.opener = null;
+      markOpened(l.key);
+    }
+    persist(); render();
+    $('sw-msg').textContent = blocked
+      ? `Your browser blocked ${blocked} tab(s). Click the pop-up icon in the address bar, choose "Always allow", then press Open again.`
+      : `Opened ${todo.length} tab(s).`;
+  });
+
+  $('sw-reset').addEventListener('click', () => { opened.keys = []; persist(); render(); $('sw-msg').textContent = ''; });
+
+  render();
+})();
+</script>
+</body>
+</html>
