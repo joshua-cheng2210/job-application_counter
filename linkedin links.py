@@ -23,8 +23,11 @@ AREAS = {
     "Seattle, WA (city)": "104116203",
     "Minnesota (state)": "103411167",
     "Texas (state)": "102748797",
+    "Tennessee (state)": "104629187",
+    "Florida (state)": "101318387",
     "North Carolina (state)": "103255397",
     "Georgia (state)": "103950076",
+    "Washington (state)": "103977389",
 }
 
 TIMELINES = {
