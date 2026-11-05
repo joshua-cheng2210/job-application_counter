@@ -167,6 +167,15 @@
   .missing { padding: 28px; text-align: center; color: var(--text-2); }
   .missing code { background: var(--surface-2); padding: 2px 6px; border-radius: 6px; }
 
+  /* Copyable command box */
+  .copy-row { display: flex; gap: 8px; margin-top: 12px; }
+  .copy-box {
+    flex: 1; min-width: 0; padding: 8px 12px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+    font: 13px/1.4 Consolas, "Cascadia Mono", monospace;
+  }
+  .copy-box:focus { outline: 2px solid var(--series); outline-offset: 1px; background: var(--surface); }
+
   /* LinkedIn sweep */
   .sweep { margin-top: 16px; padding: 18px 22px 20px; }
   .sweep h3 { margin: 0; font-size: 15px; font-weight: 600; }
@@ -344,6 +353,20 @@
     </div>
     <div class="sw-msg" id="sw-msg" role="status"></div>
     <ul class="links" id="sw-links"></ul>
+  </section>
+
+  <section class="card sweep" id="scraper">
+    <div class="panel-head">
+      <h3>Claude scraper automation</h3>
+      <div class="hint">Edit the command, then copy it into Claude Code</div>
+    </div>
+    <div class="copy-row">
+      <input type="text" class="copy-box" id="cmd-box" spellcheck="false" aria-label="Command to copy"
+             value="/sponsor-job-scan MN WI CO TX WA TN FL NC">
+      <button class="sw-btn primary" id="cmd-copy">Copy</button>
+      <button class="sw-btn" id="cmd-reset" title="Restore the original command">Reset</button>
+    </div>
+    <div class="sw-msg" id="cmd-msg" role="status"></div>
   </section>
 </div>
 
@@ -938,6 +961,38 @@
   $('sw-reset').addEventListener('click', () => { opened.keys = []; persist(); render(); $('sw-msg').textContent = ''; });
 
   render();
+})();
+</script>
+<script>
+// ---------- Copyable command box ----------
+(function () {
+  const box = document.getElementById('cmd-box');
+  const msg = document.getElementById('cmd-msg');
+  const KEY = 'jobdash.cmd';
+  const DEFAULT = box.defaultValue;   // the value="" written in the HTML
+
+  // Remember edits between visits (falls back silently if storage is blocked).
+  try { const saved = localStorage.getItem(KEY); if (saved !== null) box.value = saved; } catch (e) {}
+  box.addEventListener('input', () => { try { localStorage.setItem(KEY, box.value); } catch (e) {} });
+
+  let timer;
+  const flash = (text) => { msg.textContent = text; clearTimeout(timer); timer = setTimeout(() => (msg.textContent = ''), 2000); };
+
+  document.getElementById('cmd-copy').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(box.value);   // modern clipboard API
+    } catch (e) {
+      box.select();                                     // fallback for older/locked-down browsers
+      document.execCommand('copy');
+    }
+    flash('Copied ✓');
+  });
+
+  document.getElementById('cmd-reset').addEventListener('click', () => {
+    box.value = DEFAULT;
+    try { localStorage.removeItem(KEY); } catch (e) {}
+    flash('Restored the original command');
+  });
 })();
 </script>
 </body>
